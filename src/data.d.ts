@@ -3,7 +3,10 @@ export interface Form {
   title: string;
   type: string;
   versionRepository: string;
+  versionVue: string;
   versionBrowser: string;
+  versionSystem: string;
+  versionNode: string;
   reproduce: string;
   steps: string;
   expected: string;
@@ -19,6 +22,7 @@ export interface FormData {
   issueTypeOptions: { label: string; value: string }[];
   version: {
     repo: { label: string; value: string }[];
+    vue: { label: string; value: string }[];
   };
 }
 

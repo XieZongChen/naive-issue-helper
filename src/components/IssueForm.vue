@@ -1,5 +1,5 @@
 <template>
-  <n-card>
+  <n-card class="card">
     <n-form
       ref="formRef"
       :model="form"
@@ -37,37 +37,71 @@
         <n-input v-model:value="form.title" placeholder="请输入" />
       </n-form-item>
 
+      <!-- 项目版本 -->
+      <n-form-item
+        :label="contentText.versionRepositoryHint"
+        path="versionRepository"
+      >
+        <n-select
+          placeholder="请选择"
+          v-model:value="form.versionRepository"
+          :options="version.repo"
+          class="form-select"
+        />
+      </n-form-item>
+      <n-alert type="default" class="m-b-24" show-icon>
+        <template #icon>
+          <n-icon :depth="3">
+            <Info24Regular />
+          </n-icon>
+        </template>
+        <span class="alert-font">{{ contentText.firstTip }}</span>
+      </n-alert>
+
       <template v-if="isBug">
         <n-grid cols="2" :x-gap="16">
-          <!-- 项目版本 -->
-          <n-form-item-gi
-            :label="contentText.versionRepositoryHint"
-            path="versionRepository"
-          >
+          <!-- Vue版本 -->
+          <n-form-item-gi :label="contentText.versionVueHint" path="versionVue">
             <n-select
               placeholder="请选择"
-              v-model:value="form.versionRepository"
-              :options="version.repo"
+              v-model:value="form.versionVue"
+              :options="version.vue"
               class="form-select"
             />
           </n-form-item-gi>
 
-          <!-- 环境 -->
+          <!-- 浏览器及其版本 -->
           <n-form-item-gi
             :label="contentText.versionBrowserHint"
             path="versionBrowser"
           >
-            <n-input v-model:value="form.versionBrowser" placeholder="请输入" />
+            <n-input
+              v-model:value="form.versionBrowser"
+              placeholder="Chrome(89.0.4389.128)"
+            />
           </n-form-item-gi>
         </n-grid>
-        <n-alert type="default" class="m-b-24" show-icon>
-          <template #icon>
-            <n-icon :depth="3">
-              <information-circle-outline />
-            </n-icon>
-          </template>
-          <span class="alert-font">{{ contentText.firstTip }}</span>
-        </n-alert>
+
+        <n-grid cols="2" :x-gap="16">
+          <!-- 系统及其版本 -->
+          <n-form-item-gi
+            :label="contentText.versionSystemHint"
+            path="versionSystem"
+          >
+            <n-input
+              v-model:value="form.versionSystem"
+              placeholder="MacOS(11.2.3)"
+            />
+          </n-form-item-gi>
+
+          <!-- Node版本 -->
+          <n-form-item-gi
+            :label="contentText.versionNodeHint"
+            path="versionNode"
+          >
+            <n-input v-model:value="form.versionNode" placeholder="请输入" />
+          </n-form-item-gi>
+        </n-grid>
 
         <!-- 重现链接 -->
         <n-form-item :label="contentText.reproduceHint" path="reproduce">
@@ -76,7 +110,7 @@
         <n-alert type="default" class="m-b-24" show-icon>
           <template #icon>
             <n-icon :depth="3">
-              <information-circle-outline />
+              <Info24Regular />
             </n-icon>
           </template>
           <span class="alert-font">{{ contentText.secondTip }}</span></n-alert
@@ -95,23 +129,37 @@
             @close="tipVisible = false"
             style="width: 50%"
           >
-            <p v-html="contentText.reproduceExplain"></p>
+            <n-p v-html="contentText.reproduceExplain" />
+            <n-h3>{{ contentText.reproduceExplainTitleOne }}</n-h3>
+            <n-p v-html="contentText.reproduceExplainParagraphOne" />
+            <n-h3>{{ contentText.reproduceExplainTitleTwo }}</n-h3>
+            <n-p>
+              <n-text strong>{{ contentText.keyWords }}</n-text
+              ><n-text v-html="contentText.reproduceExplainParagraphTwo" />
+            </n-p>
+            <n-h3>{{ contentText.reproduceExplainTitleThree }}</n-h3>
+            <n-p v-html="contentText.reproduceExplainParagraphThree" />
+            <n-h3>{{ contentText.reproduceExplainTitleFour }}</n-h3>
+            <n-p v-html="contentText.reproduceExplainParagraphFour" />
           </n-card>
         </n-modal>
 
         <!-- 重现步骤 -->
-        <n-form-item :label="contentText.stepsHint" path="steps">
+        <n-form-item
+          :label="contentText.stepsHint"
+          path="steps"
+          ingore-path-change
+        >
           <n-input
-            v-model="form.steps"
+            v-model:value="form.steps"
             type="textarea"
             placeholder="请输入"
-            :autosize="{ minRows: 2, maxRows: 5 }"
           />
         </n-form-item>
         <n-alert type="default" class="m-b-24" show-icon>
           <template #icon>
             <n-icon :depth="3">
-              <information-circle-outline />
+              <Info24Regular />
             </n-icon>
           </template>
           <span class="alert-font">{{ contentText.thirdTip }}</span></n-alert
@@ -120,36 +168,33 @@
         <!-- 期望的结果是什么 -->
         <n-form-item :label="contentText.expectHint" path="expected">
           <n-input
-            v-model="form.expected"
+            v-model:value="form.expected"
             type="textarea"
             placeholder="请输入"
-            :autosize="{ minRows: 2, maxRows: 5 }"
           ></n-input>
         </n-form-item>
 
         <!-- 实际的结果是什么 -->
         <n-form-item :label="contentText.actualHint" path="actual">
           <n-input
-            v-model="form.actual"
+            v-model:value="form.actual"
             type="textarea"
             placeholder="请输入"
-            :autosize="{ minRows: 2, maxRows: 5 }"
           ></n-input>
         </n-form-item>
 
         <!-- 补充说明（可选） -->
         <n-form-item :label="contentText.remarks">
           <n-input
-            v-model="form.remarks"
+            v-model:value="form.remarks"
             type="textarea"
             placeholder="请输入"
-            :autosize="{ minRows: 2, maxRows: 5 }"
           ></n-input>
         </n-form-item>
         <n-alert type="default" class="m-b-24" show-icon>
           <template #icon>
             <n-icon :depth="3">
-              <information-circle-outline />
+              <Info24Regular />
             </n-icon>
           </template>
           <span class="alert-font">{{ contentText.fourthTip }}</span></n-alert
@@ -162,12 +207,12 @@
           :label="contentText.functionContent"
           path="functionContent"
         >
-          <n-input v-model="form.functionContent" placeholder="请输入" />
+          <n-input v-model:value="form.functionContent" placeholder="请输入" />
         </n-form-item>
         <n-alert type="default" class="m-b-24" show-icon>
           <template #icon>
             <n-icon :depth="3">
-              <information-circle-outline />
+              <Info24Regular />
             </n-icon>
           </template>
           <span class="alert-font">{{
@@ -181,16 +226,15 @@
           path="functionalExpectations"
         >
           <n-input
-            v-model="form.functionalExpectations"
+            v-model:value="form.functionalExpectations"
             type="textarea"
             placeholder="请输入"
-            :autosize="{ minRows: 2, maxRows: 5 }"
           ></n-input>
         </n-form-item>
         <n-alert type="default" class="m-b-24" show-icon>
           <template #icon>
             <n-icon :depth="3">
-              <information-circle-outline />
+              <Info24Regular />
             </n-icon>
           </template>
           <span class="alert-font">{{
@@ -213,11 +257,11 @@
     <n-card
       :title="contentText.dialog.title"
       closable
-      @close="tipVisible = false"
+      @close="previewVisible = false"
       style="width: 50%"
     >
-      <div v-html="issueHTML"></div>
-      <template #action>
+      <div v-html="issueHTML" class="preview-content"></div>
+      <template #action class="preview-footer">
         <n-button
           type="primary"
           v-html="contentText.dialog.button"
@@ -251,8 +295,11 @@ import {
   NIcon,
   NModal,
   NCard,
+  NH3,
+  NText,
+  NP,
 } from 'naive-ui';
-import { InformationCircleOutline } from '@vicons/ionicons5';
+import { Info24Regular } from '@vicons/fluent';
 import axios from 'axios';
 import marked from 'marked';
 import hanabi from 'hanabi';
@@ -287,7 +334,10 @@ export default defineComponent({
     NIcon,
     NModal,
     NCard,
-    InformationCircleOutline,
+    NH3,
+    NText,
+    NP,
+    Info24Regular,
   },
   setup: () => {
     const contentText: Ref<any> = ref(content);
@@ -298,7 +348,10 @@ export default defineComponent({
         title: '',
         type: 'Bug',
         versionRepository: '',
+        versionVue: '',
         versionBrowser: '',
+        versionSystem: '',
+        versionNode: '',
         reproduce: '',
         steps: '',
         expected: '',
@@ -313,6 +366,7 @@ export default defineComponent({
       issueTypeOptions: contentText.value.issueTypes,
       version: {
         repo: [],
+        vue: [],
       },
     });
     const issue: Ref<string> = ref('');
@@ -326,7 +380,7 @@ export default defineComponent({
       const valid = contentText.value.valid;
       let rules: any = {};
       for (let prop in valid) {
-        if (prop === 'remarks') {
+        if (prop === 'remarks' || prop === 'versionNode') {
           continue;
         }
         rules[prop] = [
@@ -345,7 +399,9 @@ export default defineComponent({
           return new Promise((resolve, reject) => {
             if (
               val &&
-              !/(github|jsfiddle|codepen|jsbin|codesandbox)/gi.test(val)
+              !/(github|jsfiddle|codepen|jsbin|codesandbox|stackblitz)/gi.test(
+                val
+              )
             ) {
               reject(Error('请填写正确的重现链接'));
             } else {
@@ -377,6 +433,11 @@ export default defineComponent({
         return { label: i, value: i };
       });
       formData.form.versionRepository = formData.version.repo[0].value;
+      const vueRes = await axios.get(versionApi.value.vueVersion);
+      formData.version.vue = Object.keys(vueRes.data.versions).map((i) => {
+        return { label: i, value: i };
+      });
+      formData.form.versionVue = formData.version.vue[0].value;
     }
     onMounted(() => {
       fetchRepositoryVersion();
@@ -391,34 +452,43 @@ export default defineComponent({
     function createIssue() {
       issue.value = isBug.value
         ? `
-### ${formData.form.repo} 项目版本
+### ${formData.form.repo} version (版本)
 ${formData.form.versionRepository}
 
-### 环境
+### Vue version (Vue 版本)
+${formData.form.versionVue}
+
+### Browser and its version (浏览器及其版本)
 ${formData.form.versionBrowser}
 
-### 重现链接
+### System and its version (系统及其版本)
+${formData.form.versionSystem}
+
+### Node version (Node 版本)
+${formData.form.versionNode}
+
+### Reappearance link (重现链接)
 ${formData.form.reproduce}
 
-### 重现步骤
+### Reappearance steps (重现步骤)
 ${formData.form.steps}
 
-### 期望的结果
+### Expected results (期望的结果)
 ${formData.form.expected}
 
-### 实际的结果
+### Actual results (实际的结果)
 ${formData.form.actual}
 
-### 补充说明
+### Remarks (补充说明)
 ${formData.form.remarks}
 
 `.trim()
         : `
 
-### 这个功能解决的问题
+### This function solves the problem (这个功能解决的问题)
 ${formData.form.functionContent}
 
-### 期望的 API
+### Expected API (期望的 API)
 ${formData.form.functionalExpectations}
 
 `.trim();
@@ -477,6 +547,10 @@ ${comment}
   font-size: 18px;
 }
 
+.card {
+  margin-bottom: 40px;
+}
+
 .form {
   margin-top: 10px;
 }
@@ -495,8 +569,14 @@ ${comment}
 }
 
 .preview {
-  margin-bottom: 40px;
+  margin-bottom: 10px;
   display: flex;
   justify-content: center;
+}
+
+.preview-content {
+  word-wrap: break-all;
+  word-break: normal;
+  overflow: hidden;
 }
 </style>
