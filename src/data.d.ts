@@ -15,6 +15,8 @@ export interface Form {
 
 export interface FormData {
   form: Form;
+  repoOptions: { label: string; value: string }[];
+  issueTypeOptions: { label: string; value: string }[];
   version: {
     repo: { label: string; value: string }[];
   };
