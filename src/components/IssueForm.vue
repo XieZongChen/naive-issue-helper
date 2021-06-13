@@ -52,7 +52,7 @@
       <n-alert type="default" class="m-b-24" show-icon>
         <template #icon>
           <n-icon :depth="3">
-            <Info24Regular />
+            <info-24-regular />
           </n-icon>
         </template>
         <span class="alert-font">{{ contentText.firstTip }}</span>
@@ -110,7 +110,7 @@
         <n-alert type="default" class="m-b-24" show-icon>
           <template #icon>
             <n-icon :depth="3">
-              <Info24Regular />
+              <info-24-regular />
             </n-icon>
           </template>
           <span class="alert-font">{{ contentText.secondTip }}</span></n-alert
@@ -118,10 +118,10 @@
         <n-button
           text
           type="primary"
-          v-html="contentText.reproduceHintSamll"
           @click="tipVisible = true"
           class="m-b-24"
-        />
+          >{{ contentText.reproduceHintSamll }}</n-button
+        >
         <n-modal v-model:show="tipVisible">
           <n-card
             :title="contentText.reproduceTitle"
@@ -159,7 +159,7 @@
         <n-alert type="default" class="m-b-24" show-icon>
           <template #icon>
             <n-icon :depth="3">
-              <Info24Regular />
+              <info-24-regular />
             </n-icon>
           </template>
           <span class="alert-font">{{ contentText.thirdTip }}</span></n-alert
@@ -194,7 +194,7 @@
         <n-alert type="default" class="m-b-24" show-icon>
           <template #icon>
             <n-icon :depth="3">
-              <Info24Regular />
+              <info-24-regular />
             </n-icon>
           </template>
           <span class="alert-font">{{ contentText.fourthTip }}</span></n-alert
@@ -212,7 +212,7 @@
         <n-alert type="default" class="m-b-24" show-icon>
           <template #icon>
             <n-icon :depth="3">
-              <Info24Regular />
+              <info-24-regular />
             </n-icon>
           </template>
           <span class="alert-font">{{
@@ -234,7 +234,7 @@
         <n-alert type="default" class="m-b-24" show-icon>
           <template #icon>
             <n-icon :depth="3">
-              <Info24Regular />
+              <info-24-regular />
             </n-icon>
           </template>
           <span class="alert-font">{{
@@ -244,11 +244,9 @@
       </template>
 
       <n-form-item class="preview">
-        <n-button
-          type="primary"
-          v-html="contentText.preview"
-          @click="handlePreview()"
-        />
+        <n-button type="primary" @click="handlePreview()">{{
+          contentText.preview
+        }}</n-button>
       </n-form-item>
     </n-form>
   </n-card>
@@ -261,12 +259,12 @@
       style="width: 50%"
     >
       <div v-html="issueHTML" class="preview-content"></div>
-      <template #action class="preview-footer">
-        <n-button
-          type="primary"
-          v-html="contentText.dialog.button"
-          @click="create()"
-        />
+      <template #action>
+        <div class="preview-footer">
+          <n-button type="primary" @click="create()">{{
+            contentText.dialog.button
+          }}</n-button>
+        </div>
       </template>
     </n-card>
   </n-modal>
@@ -282,6 +280,8 @@ import {
   computed,
   watch,
   onMounted,
+  PropType,
+  toRef,
 } from 'vue';
 import {
   NForm,
@@ -303,7 +303,7 @@ import { Info24Regular } from '@vicons/fluent';
 import axios from 'axios';
 import marked from 'marked';
 import hanabi from 'hanabi';
-import * as content from '../content.json';
+import content from '../content.js';
 import { FormData, RepoItem } from '../data';
 
 marked.setOptions({
@@ -339,8 +339,20 @@ export default defineComponent({
     NP,
     Info24Regular,
   },
-  setup: () => {
-    const contentText: Ref<any> = ref(content);
+  props: {
+    lang: {
+      type: String as PropType<'en-US' | 'zh-CN'>,
+    },
+  },
+  setup: (props) => {
+    const lang = toRef(props, 'lang');
+    const contentText = computed(() => content[lang.value]);
+    const repoOptions = computed(() =>
+      contentText.value.repos.map((i) => {
+        return { label: i.name, value: i.github };
+      })
+    );
+    const issueTypeOptions = computed(() => contentText.value.issueTypes);
     const formRef: Ref<any> = ref(null);
     const formData: FormData = reactive({
       form: {
@@ -360,10 +372,6 @@ export default defineComponent({
         functionContent: '',
         functionalExpectations: '',
       },
-      repoOptions: contentText.value.repos.map((i) => {
-        return { label: i.name, value: i.github };
-      }),
-      issueTypeOptions: contentText.value.issueTypes,
       version: {
         repo: [],
         vue: [],
@@ -410,8 +418,6 @@ export default defineComponent({
           });
         },
       });
-      console.log(rules);
-
       return rules;
     });
 
@@ -518,17 +524,16 @@ ${comment}
     });
 
     function create() {
-      const idx = contentText.value.repos.findIndex(
-        (i: RepoItem) => i.npm === formData.form.repo
-      );
-
       window.open(
-        `https://github.com/${contentText.value.repos[idx].github}/issues/new?title=${formData.form.title}&body=${body.value}`
+        `https://github.com/${formData.form.repo}/issues/new?title=${formData.form.title}&body=${body.value}`
       );
     }
     return {
       ...toRefs(formData),
+      lang,
       contentText,
+      repoOptions,
+      issueTypeOptions,
       formRef,
       rules,
       tipVisible,
@@ -575,8 +580,14 @@ ${comment}
 }
 
 .preview-content {
-  word-wrap: break-all;
+  word-wrap: break-word;
   word-break: normal;
   overflow: hidden;
+}
+
+.preview-footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 </style>

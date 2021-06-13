@@ -5,23 +5,48 @@
         <img src="../assets/logo.svg" />
         <span>Naive UI Issue-helper</span>
       </n-text>
-      <n-button text class="nav-picker" disabled> English</n-button>
+      <n-button
+        text
+        class="nav-picker"
+        v-if="lang === 'zh-CN'"
+        @click="onLangChange('en-US')"
+      >
+        English</n-button
+      >
+      <n-button text class="nav-picker" v-else @click="onLangChange('zh-CN')">
+        中文</n-button
+      >
     </div>
   </n-layout-header>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType, toRef } from 'vue';
 import { NMenu, NLayoutHeader, NText, NButton } from 'naive-ui';
 
 export default defineComponent({
   name: 'PageHead',
+  props: {
+    lang: {
+      type: String as PropType<'en-US' | 'zh-CN'>,
+    },
+    onLangChange: {
+      type: Function,
+    },
+  },
   components: {
     NLayoutHeader,
     NText,
     NMenu,
     NButton,
-  }
+  },
+  setup: (props) => {
+    const lang = toRef(props, 'lang');
+    return {
+      lang,
+      onLangChange: props.onLangChange,
+    };
+  },
 });
 </script>
 

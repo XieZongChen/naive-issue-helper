@@ -2,12 +2,9 @@
   <n-card :title="contentText.introTitle">
     <p v-html="contentText.introOne" />
 
-    <n-button
-      text
-      type="primary"
-      v-html="contentText.explainTitle"
-      @click="introVisible = true"
-    />
+    <n-button text type="primary" @click="introVisible = true">{{
+      contentText.explainTitle
+    }}</n-button>
 
     <p v-html="contentText.introTwo" />
 
@@ -25,9 +22,9 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, Ref } from 'vue';
+import { ref, defineComponent, Ref, PropType, toRef, computed } from 'vue';
 import { NCard, NButton, NModal } from 'naive-ui';
-import * as content from '../content.json';
+import content from '../content.js';
 
 export default defineComponent({
   name: 'Intro',
@@ -36,10 +33,16 @@ export default defineComponent({
     NButton,
     NModal,
   },
-  setup: () => {
-    const contentText: Ref<any> = ref(content);
+  props: {
+    lang: {
+      type: String as PropType<'en-US' | 'zh-CN'>,
+    },
+  },
+  setup: (props) => {
+    const lang = toRef(props, 'lang');
+    const contentText = computed(() => content[lang.value]);
     const introVisible: Ref<boolean> = ref(false);
-    return { contentText, introVisible };
+    return { lang, contentText, introVisible };
   },
 });
 </script>

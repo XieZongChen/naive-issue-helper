@@ -3,9 +3,8 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, watch } from 'vue';
+import { defineComponent } from 'vue';
 import IssuePage from './components/IssuePage.vue';
-import { getQuery, updateQuery } from './utils';
 
 export default defineComponent({
   name: 'App',

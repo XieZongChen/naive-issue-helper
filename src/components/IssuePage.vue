@@ -1,16 +1,17 @@
 <template>
-  <PageHead />
+  <PageHead :lang="lang" @langChange="setLang"/>
   <div class="content-box">
-    <div class="content"><Intro /></div>
-    <div class="content"><IssueForm /></div>
+    <div class="content"><Intro :lang="lang" /></div>
+    <div class="content"><IssueForm :lang="lang" /></div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import PageHead from './PageHead.vue';
 import Intro from './Intro.vue';
 import IssueForm from './IssueForm.vue';
+import { getQuery, updateQuery } from './utils';
 
 export default defineComponent({
   name: 'IssuePage',
@@ -18,6 +19,28 @@ export default defineComponent({
     PageHead,
     Intro,
     IssueForm,
+  },
+  setup: () => {
+    const lang = ref<'en-US' | 'zh-CN'>('en-US');
+
+    const setLang = (value: 'en-US' | 'zh-CN') => {
+      lang.value = value;
+      updateQuery({ lang: value });
+    };
+
+    onMounted(() => {
+      const param = getQuery();
+      if (!param?.lang) {
+        updateQuery({ lang: lang.value });
+      } else {
+        setLang(param.lang);
+      }
+    });
+
+    return {
+      lang,
+      setLang
+    };
   },
 });
 </script>
